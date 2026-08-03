@@ -32,8 +32,8 @@ posts:list[dict]=[
   }
 ]
 #decoraters
-@app.get("/",response_class=HTMLResponse,include_in_schema=False)
-@app.get("/posts",response_class=HTMLResponse,include_in_schema=False)
+@app.get("/",include_in_schema=False,name="home")#include in schema keeps our page route out of api documentation
+@app.get("/posts",include_in_schema=False,name="posts")
 
 def home():
    return f"<h1>{posts[0]["title"]}</h1>"
