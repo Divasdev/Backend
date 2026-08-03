@@ -35,8 +35,14 @@ posts:list[dict]=[
 @app.get("/",include_in_schema=False,name="home")#include in schema keeps our page route out of api documentation
 @app.get("/posts",include_in_schema=False,name="posts")
 
-def home():
-   return f"<h1>{posts[0]["title"]}</h1>"
+def home(request:Request):#parameter needed for jinja2 to work properly 
+   return templates.TemplateResponse(
+      "home.html",
+      {
+         "request": request,
+         "posts": posts,'title':'Home'
+      }
+   )
 
 @app.get("/api/posts")
 def get_posts():
