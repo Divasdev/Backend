@@ -1,9 +1,11 @@
-from fastapi import FastAPI,Request
-
+from fastapi import FastAPI,Request,HTTPException,status
 from fastapi.templating import Jinja2Templates
-
 from fastapi.staticfiles import StaticFiles
+
+
+
 app=FastAPI()
+
 app.mount("/static",StaticFiles(directory='static'),name="static")
 
 templates=Jinja2Templates(directory="templates")
@@ -44,8 +46,33 @@ def home(request:Request):#parameter needed for jinja2 to work properly
       }
    )
 
+@app.get("/posts/{id}",include_in_schema=False)
+def get_post(request:Request,id: int ):
+  for post in posts:
+     if post.get("id")==id:
+      title=post['title'][:50]
+      return templates.TemplateResponse(
+     
+      "post.html",
+      {
+         "request": request,
+         "post": post,'title':title
+      }
+   )
+  raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Post Not Found")
+
+
 @app.get("/api/posts")
 def get_posts():
    return posts
 
+@app.get("/api/posts/{id}")#id inside get is a path parameteter that tells fast api this is part of the url and that is a variable 
+def get_post_api(id: int ):
+  for post in posts:
+     if post.get("id")==id:
+        return post 
+     
+  raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail="Post Not Found")
+
+     
 
