@@ -1,22 +1,33 @@
 {% extends "layout.html" %}
+
 {% block content %}
+  {# ==============================================================================
+     HOMEPAGE TEMPLATE (home.html)
+     Inherits layout structure from layout.html.
+     Loops through the 'posts' list passed from FastAPI's home() route handler.
+     ============================================================================== #}
+  {# Loop over each post dictionary passed in the template context #}
   {% for post in posts %}
     <article class="content-section py-3 px-4 mb-4">
       <div class="d-flex align-items-start gap-4">
+        <!-- Author Profile Picture (Static asset loaded via url_for) -->
         <img class="rounded-circle article-img flex-shrink-0"
-             src="{{ url_for('static',path='profile_pics/default.jpg')}}"
+             src="{{ url_for('static', path='profile_pics/default.jpg') }}"
              alt="{{ post.author }}'s profile picture"
              width="64"
              height="64"
              loading="lazy">
         <div class="flex-grow-1">
+          <!-- Author Name & Date Posted -->
           <div class="article-metadata mb-2">
             <a class="me-2" href="#">{{ post.author }}</a>
             <small class="text-body-secondary">{{ post.date_posted }}</small>
           </div>
+          <!-- Post Title (Clickable link to post detail route /posts/{id}) -->
           <h2>
             <a class="article-title" href="{{ url_for('get_post', id=post.id) }}">{{ post.title }}</a>
           </h2>
+          <!-- Post Content Snippet -->
           <p class="article-content">{{ post.content }}</p>
         </div>
       </div>
