@@ -24,7 +24,10 @@ from fastapi.templating import Jinja2Templates
 
 # StaticFiles: Utility to serve static assets (CSS, JS, images, icons).
 from fastapi.staticfiles import StaticFiles
-
+# We import our Pydantic schemas from schemas.py.
+# PostCreate  → used to validate data the user SENDS to us (the request body).
+# PostResponse → used to shape/filter the data we SEND BACK to the user (the response).
+from schemas import PostCreate,PostResponse
 
 # --- APPLICATION SETUP ---
 # Create the main FastAPI application instance.
@@ -138,7 +141,11 @@ def get_post(request: Request, id: int):
 # ==============================================================================
 
 # API Endpoint: Get All Posts
-@app.get("/api/posts")
+# response_model=list[PostResponse] tells FastAPI:
+# "When you send data back, filter it through the PostResponse schema."
+# This means fields that are NOT in PostResponse (like 'published', 'views') will be hidden.
+# This is called RESPONSE VALIDATION — we control exactly what the client sees.
+@app.get("/api/posts",response_model=list[PostResponse])
 def get_posts():
     """
     API endpoint returning all blog posts in raw JSON format.
@@ -148,9 +155,45 @@ def get_posts():
     """
     return posts
 
+# response_model=PostResponse means the single post returned will also be filtered
+# through our schema — same idea as above, just for one post instead of a list.
+#
+# status_code=201 means we send back "201 Created" instead of the default "200 OK".
+# This is the correct HTTP status code when a new resource has been created.
+@app.post(
+    "/api/posts",
+    response_model=PostResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+
+# post:PostCreate → this is REQUEST BODY PARSING.
+# FastAPI sees the type hint PostCreate and automatically:
+#   1. Reads the JSON body sent by the client.
+#   2. Checks that it has title, content, and author (as defined in PostCreate).
+#   3. Rejects the request with a 422 error if anything is missing or wrong.
+# We don't write any of that validation code ourselves — Pydantic handles it!
+def create_post(post:PostCreate):
+    new_id=max(p["id"] for p in posts)+1 if posts else 1
+    # Access the validated fields directly using dot notation (post.title, post.author, etc.).
+    # Pydantic has already confirmed these values are safe to use.
+    new_post={
+        "id": new_id,
+        "author":post.author,
+        "title":post.title,
+        "content":post.content,
+        "date_posted":"August 7, 2026",
+    }
+
+    posts.append(new_post)
+    # FastAPI will pass this dict through PostResponse before sending it to the client.
+    # So the client only gets id, title, content, author, and date_posted — nothing extra.
+    return new_post
+    
 
 # API Endpoint: Get Single Post by ID
-@app.get("/api/posts/{id}")
+# response_model=PostResponse here too — even for a GET by ID, we still filter
+# the response so the client only sees the fields defined in PostResponse.
+@app.get("/api/posts/{id}",response_model=PostResponse)
 def get_post_api(id: int):
     """
     API endpoint returning a single post by its ID in raw JSON format.
