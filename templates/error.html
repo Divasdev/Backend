@@ -1,0 +1,18 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{# ==============================================================================
+   ERROR PAGE TEMPLATE (error.html)
+   Inherits layout structure from layout.html.
+   Rendered by custom exception handlers in main.py when an HTTP error occurs (e.g. 404, 422).
+   Displays the HTTP status_code and detailed error message.
+   ============================================================================== #}
+<article class="content-section py-3 px-4 mb-4">
+    <!-- Error Title with HTTP Status Code (e.g. 404, 422) -->
+    <h1>
+        <a class="article-title" href="#">Oops... {{ status_code }} Error</a>
+    </h1>
+    <!-- Detailed User-Friendly Error Message -->
+    <p class="article-content">{{ message }}</p>
+</article>
+{% endblock content %}

@@ -10,18 +10,22 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+build/
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
+.vscode/
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+*.swp
+*.swo
+*~
 
 # Python
 __pycache__/
@@ -29,9 +33,17 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
+*.egg-info/
+*.egg
+
+# Virtual environments
 venv/
+.venv/
+env/
 ENV/
 env.bak/
 venv.bak/
+
+# Environment variables
 .env
+.env.local
