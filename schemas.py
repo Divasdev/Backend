@@ -9,7 +9,7 @@
 # BaseModel  → the parent class from Pydantic that gives our schemas validation powers.
 # ConfigDict → lets us configure how a schema behaves (e.g., reading from a DB model).
 # Field      → lets us add extra rules to a field, like min/max length.
-from pydantic import BaseModel,ConfigDict,Field
+from pydantic import BaseModel,ConfigDict,Field,EmailStr
 
 # ==============================================================================
 # WHAT IS A PYDANTIC SCHEMA?
@@ -17,6 +17,23 @@ from pydantic import BaseModel,ConfigDict,Field
 # When data arrives at our API, Pydantic checks it against this template
 # automatically — no extra validation code needed from us.
 # ==============================================================================
+from datetime import datetime
+
+class UserBase(BaseModel):
+   username:str=Field(min_length=1,max_length=50)
+   email:EmailStr=Field(max_length=120)
+
+   
+class UserCreate(UserBase):
+   pass 
+
+class UserResponse(UserBase):
+   model_config=ConfigDict(from_attributes=True)
+
+   id:int 
+   image_file:str|None 
+   image_path:str
+
 
 
 # --- BASE SCHEMA ---
@@ -28,14 +45,14 @@ class PostBase(BaseModel):
    # Field() adds extra rules — here we set minimum and maximum allowed lengths.
    title: str =Field(min_length=1,max_length=100)
    content: str =Field(min_length=1)
-   author : str =Field(min_length=1,max_length=50)
+   
 
 # --- REQUEST SCHEMA (used for INCOMING data) ---
 # PostCreate is the schema that VALIDATES data sent by the user when creating a post.
 # It inherits title, content, and author from PostBase — no extra fields needed here.
 # FastAPI will automatically reject requests that don't match this shape.
 class PostCreate(PostBase):
-   pass 
+   user_id:int 
 
 
 # --- RESPONSE SCHEMA (used for OUTGOING data) ---
@@ -49,7 +66,9 @@ class PostResponse(PostBase):
    # These two fields only appear in the RESPONSE — they are NOT part of the request.
    # FastAPI includes them automatically when returning post data to the client.
    id:int 
-   date_posted: str 
+   user_id:int 
+   date_posted: datetime
+   author:UserResponse 
 
 
 
