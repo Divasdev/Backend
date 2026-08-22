@@ -22,8 +22,6 @@ from datetime import datetime
 class UserBase(BaseModel):
    username:str=Field(min_length=1,max_length=50)
    email:EmailStr=Field(max_length=120)
-
-   
 class UserCreate(UserBase):
    pass 
 
@@ -54,6 +52,14 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
    user_id:int 
 
+
+class PostUpdate(BaseModel):
+   # Each field uses a Python type hint (str, int, etc.).
+   # FastAPI reads these hints to know what type of data is expected.
+   # Field() adds extra rules — here we set minimum and maximum allowed lengths.
+   title: str | None =Field( default=None,min_length=1,max_length=100)
+   content: str| None  =Field(default=None,min_length=1)
+   
 
 # --- RESPONSE SCHEMA (used for OUTGOING data) ---
 # PostResponse is the schema that SHAPES the data we send BACK to the client.
