@@ -239,7 +239,7 @@ def get_user_posts(user_id: int, db: Annotated[Session, Depends(get_db)]):
 
 
 ## update_user
-@app.patch("/api/users/{user_id}", response_model=UserResponse)
+
 ## update_user
 @app.patch("/api/users/{user_id}", response_model=UserResponse)
 def update_user(
