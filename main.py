@@ -1,38 +1,21 @@
-# ==============================================================================
-# FASTAPI BLOG APPLICATION
-# Main Entry Point & Route Definitions
-# ==============================================================================
 
-# --- IMPORTS ---
-# FastAPI: Core class to create the web application instance.
-# Request: Class representing incoming HTTP requests (required for Jinja2 templates to build URLs).
-# HTTPException: Exception raised to send HTTP error responses (e.g. 404 Not Found).
-# status: Module containing HTTP status code constants (e.g. status.HTTP_404_NOT_FOUND).
 from fastapi import FastAPI, Request, HTTPException, status,Depends
 
-# RequestValidationError: Triggered automatically by FastAPI when request data/types fail validation.
 from fastapi.exceptions import RequestValidationError
 
-# JSONResponse: Returns structured JSON responses to client/API requests.
 from fastapi.responses import JSONResponse
 
-# StarletteHTTPException: Base exception class for HTTP errors in Starlette/FastAPI.
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-# Jinja2Templates: Configures Jinja2 template rendering engine for HTML pages.
 from fastapi.templating import Jinja2Templates
 
-# StaticFiles: Utility to serve static assets (CSS, JS, images, icons).
 from fastapi.staticfiles import StaticFiles
-# We import our Pydantic schemas from schemas.py.
-# PostCreate  → used to validate data the user SENDS to us (the request body).
-# PostResponse → used to shape/filter the data we SEND BACK to the user (the response).
+
 from schemas import PostCreate,PostResponse
 
 from typing import Annotated
 from sqlalchemy import select
-# Session is the type used to annotate the database session parameter in route functions.
-# It must be imported with a capital 'S' — lowercase 'session' is a different, internal object.
+
 from sqlalchemy.orm import Session
 
 import models
@@ -42,13 +25,9 @@ from schemas import PostCreate,PostResponse,UserCreate,UserResponse,PostUpdate,U
 Base.metadata.create_all(bind=engine)
 
 
-
-# --- APPLICATION SETUP ---
-# Create the main FastAPI application instance.
 app = FastAPI()
 
-# Mount the 'static' directory to serve static assets under the '/static' URL prefix.
-# Example: '/static/css/main.css' maps to 'static/css/main.css' on disk.
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.mount("/media",StaticFiles(directory="media"),name="media")
 
@@ -56,47 +35,7 @@ app.mount("/media",StaticFiles(directory="media"),name="media")
 templates = Jinja2Templates(directory="templates")
 
 
-# --- DUMMY DATA STORE ---
-# In-memory database simulation using a Python list of dictionaries representing blog posts.
-# posts: list[dict] = [
-#     {
-#         "id": 101,
-#         "title": "Getting Started with FastAPI",
-#         "author": "Divas Sharma",
-#         "date_posted": "August 1, 2026",
-#         "content": "FastAPI is a modern, fast (high-performance), web framework for building APIs with Python 3.8+ based on standard Python type hints.",
-#         "published": True,
-#         "views": 1245,
-#     },
-#     {
-#         "id": 102,
-#         "title": "Understanding REST APIs",
-#         "author": "John Doe",
-#         "date_posted": "August 2, 2026",
-#         "content": "RESTful APIs allow systems to communicate over HTTP using standard request methods like GET, POST, PUT, and DELETE.",
-#         "published": False,
-#         "views": 350,
-#     },
-#     {
-#         "id": 103,
-#         "title": "Python Tips for Beginners",
-#         "author": "Jane Smith",
-#         "date_posted": "August 3, 2026",
-#         "content": "Here are some valuable Python tips and best practices for beginners looking to write cleaner, more efficient code.",
-#         "published": True,
-#         "views": 2890,
-#     },
-# ]
 
-
-# ==============================================================================
-# FRONTEND / HTML ROUTES (Renders Jinja2 HTML Templates)
-# ==============================================================================
-
-# Route: Home Page & Posts List Page
-# Decorators bind HTTP GET requests for '/' and '/posts' to the home() function.
-# include_in_schema=False hides these website HTML routes from the OpenAPI /docs page.
-# name='home' / name='posts' allow reverse URL resolution using url_for('home') in templates.
 @app.get("/", include_in_schema=False, name="home")
 @app.get("/posts", include_in_schema=False, name="posts")
 def home(request: Request, db: Annotated[Session, Depends(get_db)]):
