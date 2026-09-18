@@ -20,7 +20,15 @@ from sqlalchemy.orm import Session
 
 import models
 from database import Base,engine,get_db
-from schemas import PostCreate,PostResponse,UserCreate,UserResponse,PostUpdate,UserUpdate
+from schemas import (
+        PostCreate,
+        PostResponse,
+        UserCreate,
+        UserResponse,
+        PostUpdate,
+        UserUpdate
+    )
+
 
 Base.metadata.create_all(bind=engine)
 
@@ -101,13 +109,6 @@ def user_posts_page(
     )
 
 
-
-
-
-
-# ==============================================================================
-# BACKEND REST API ROUTES (Returns Raw JSON Data)
-# ==============================================================================
 @app.post(
     "/api/users",
     response_model=UserResponse,
