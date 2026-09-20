@@ -10,10 +10,7 @@ from database import get_db
 from schemas import PostCreate, PostResponse, PostUpdate
 
 
-router = APIRouter(
-    prefix="/api/posts",
-    tags=["posts"],
-)
+router = APIRouter()
 
 
 # ==============================================================================
