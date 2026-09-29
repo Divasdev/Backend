@@ -4,7 +4,7 @@
   {# ==============================================================================
      SINGLE POST DETAIL TEMPLATE (post.html)
      Inherits layout from layout.html.
-     Displays full details for a single blog post passed via get_post() route handler.
+     Displays full details for a single blog post passed via post_page() route handler.
      Includes action buttons (Edit, Delete modal dialog).
      ============================================================================== #}
   <!-- Single Post Main Container -->
@@ -130,7 +130,7 @@
     } from "/static/js/utils.js";
 
     // Get post ID from Jinja2 template
-    const postId = {{ post.id }};
+    const postId = {{ post.id}}; 
 
     // Edit Post Form Handler
     const editForm = document.getElementById("editPostForm");
@@ -183,6 +183,7 @@
         } catch (error) {
           document.getElementById("errorMessage").textContent =
             "Network error. Please check your connection and try again.";
+          hideModal("editModal");
           showModal("errorModal");
         }
       });
@@ -213,6 +214,7 @@
         } catch (error) {
           document.getElementById("errorMessage").textContent =
             "Network error. Please check your connection and try again.";
+          hideModal("deleteModal");
           showModal("errorModal");
         }
       });

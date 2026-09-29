@@ -19,6 +19,7 @@ class User(Base):
         nullable=True,
         default=None,
     )
+    password_hashed:Mapped[str]= mapped_column(String(200), nullable=False)
 
     posts: Mapped[list[Post]] = relationship(back_populates="author",cascade="all,delete-orphan")
 
