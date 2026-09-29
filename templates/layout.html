@@ -70,35 +70,26 @@
             <a class="nav-link active" aria-current="page" href="{{ url_for('home')}}">Home</a>
           </div>
           <!-- Right Navigation Links & Theme Switcher -->
-          <div class="navbar-nav">
-            <!-- NOTE: Once auth is set up, this button will only be visible when logged in -->
-            <button class="btn btn-outline-light mb-2 mb-md-0 me-md-2"
-                    type="button"
-                    data-bs-toggle="modal"
-                    data-bs-target="#createPostModal">New Post</button>
-            <!-- NOTE: Once auth is set up, this button will only be visible when logged in -->
-            <a class="btn btn-outline-light mb-2 mb-md-0 me-md-2" href="#">Login</a>
-            <a class="btn btn-light mb-2 mb-md-0 me-md-3" href="#">Register</a>
+          ## navbar_right_side
+<!-- Shown when logged in (hidden by default, shown via JS) -->
+<div id="loggedInNav" class="d-none">
+<button class="btn btn-outline-light mb-2 mb-md-0 me-md-2"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#createPostModal">New Post</button>
+<span id="usernameDisplay" class="navbar-text me-md-2"></span>
+<button class="btn btn-outline-light mb-2 mb-md-0 me-md-3"
+        type="button"
+        id="logoutBtn">Logout</button>
+</div>
+<!-- Shown when logged out -->
+<div id="loggedOutNav">
+<a class="btn btn-outline-light mb-2 mb-md-0 me-md-2"
+    href="{{ url_for("login_page") }}">Login</a>
+<a class="btn btn-light mb-2 mb-md-0 me-md-3"
+    href="{{ url_for("register_page") }}">Register</a>
+</div>
 
-            <!-- Light / Dark Mode Dropdown -->
-            <div class="nav-item dropdown">
-              <a class="nav-link dropdown-toggle" href="#" role="button" id="bd-theme" data-bs-toggle="dropdown"
-                aria-expanded="false">
-                <span id="bd-theme-text">🌗 Auto</span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="bd-theme">
-                <li>
-                  <button class="dropdown-item" type="button" data-bs-theme-value="light">🌝 Light</button>
-                </li>
-                <li>
-                  <button class="dropdown-item" type="button" data-bs-theme-value="dark">🌚 Dark</button>
-                </li>
-                <li>
-                  <button class="dropdown-item" type="button" data-bs-theme-value="auto">🌗 Auto</button>
-                </li>
-              </ul>
-            </div>
-          </div>
         </div>
       </div>
     </nav>
@@ -213,6 +204,8 @@
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
 
+
+
   <!-- Dark Mode Theme Switching Logic -->
   <script>
     const setTheme = (theme) => {
@@ -239,7 +232,38 @@
 
 
 
+
   </script>
+
+  ## auth_state_script
+<!-- Auth State Management -->
+<script type="module">
+  import { getCurrentUser, logout } from '/static/js/auth.js';
+
+  // Update navbar based on auth state
+  async function updateAuthUI() {
+    const user = await getCurrentUser();
+    const loggedInNav = document.getElementById('loggedInNav');
+    const loggedOutNav = document.getElementById('loggedOutNav');
+
+    if (user) {
+      loggedInNav.classList.remove('d-none');
+      loggedInNav.classList.add('d-flex');
+      loggedOutNav.classList.add('d-none');
+      document.getElementById('usernameDisplay').textContent = user.email;
+    } else {
+      loggedInNav.classList.add('d-none');
+      loggedInNav.classList.remove('d-flex');
+      loggedOutNav.classList.remove('d-none');
+    }
+  }
+
+  // Logout handler
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Update UI on page load
+  updateAuthUI();
+</script>
   <!-- Create Post Form Handler -->
   <script type="module">
     import {
