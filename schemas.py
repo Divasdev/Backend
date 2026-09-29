@@ -24,7 +24,7 @@ class UserBase(BaseModel):
    email:EmailStr=Field(max_length=120)
    
 class UserCreate(UserBase):
-   password:str=Field(min_length=8,max_digits=20)
+   password:str=Field(min_length=8)
 
 class UserPublic(BaseModel):
    model_config=ConfigDict(from_attributes=True)
