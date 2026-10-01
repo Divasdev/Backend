@@ -254,7 +254,7 @@ async def delete_post(
     if post.user_id!=current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not Authorised to update this post",
+            detail="Not Authorised to delete this post",
         )
 
     await db.delete(post)
