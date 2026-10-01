@@ -59,35 +59,24 @@ class Token(BaseModel):
 # PostBase holds the fields that are SHARED by both the request and response schemas.
 # Putting shared fields here avoids copy-pasting — other schemas will inherit from it.
 class PostBase(BaseModel):
-   # Each field uses a Python type hint (str, int, etc.).
-   # FastAPI reads these hints to know what type of data is expected.
-   # Field() adds extra rules — here we set minimum and maximum allowed lengths.
+  
    title: str =Field(min_length=1,max_length=100)
    content: str =Field(min_length=1)
    
 
-# --- REQUEST SCHEMA (used for INCOMING data) ---
-# PostCreate is the schema that VALIDATES data sent by the user when creating a post.
-# It inherits title, content, and author from PostBase — no extra fields needed here.
-# FastAPI will automatically reject requests that don't match this shape.
+
 class PostCreate(PostBase):
-   user_id:int 
+   pass 
 
 
 class PostUpdate(BaseModel):
-   # Each field uses a Python type hint (str, int, etc.).
-   # FastAPI reads these hints to know what type of data is expected.
-   # Field() adds extra rules — here we set minimum and maximum allowed lengths.
+   
    title: str | None =Field( default=None,min_length=1,max_length=100)
    content: str| None  =Field(default=None,min_length=1)
    
 
-# --- RESPONSE SCHEMA (used for OUTGOING data) ---
-# PostResponse is the schema that SHAPES the data we send BACK to the client.
-# We add extra fields (id, date_posted) that the server generates — the user never sends these.
 class PostResponse(PostBase):
-   # from_attributes=True tells Pydantic it can also read data from an ORM/DB object
-   # (like a SQLAlchemy model), not just from a plain Python dictionary.
+   
    model_config=ConfigDict(from_attributes=True)
 
    # These two fields only appear in the RESPONSE — they are NOT part of the request.

@@ -10,6 +10,8 @@ from database import get_db
 from schemas import PostCreate, PostResponse, PostUpdate
 
 
+from auth import CurrentUser
+
 router = APIRouter()
 
 
@@ -44,29 +46,16 @@ async def get_posts(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_post(
-    post: PostCreate,
+    post: PostCreate,current_user:CurrentUser,
     db: Annotated[AsyncSession, Depends(get_db)],
 ):
-    # Check whether user exists
-    result = await db.execute(
-        select(models.User).where(
-            models.User.id == post.user_id
-        )
-    )
-
-    user = result.scalars().first()
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found",
-        )
-
+    
+    
     # Create post
     new_post = models.Post(
         title=post.title,
         content=post.content,
-        user_id=post.user_id,
+        user_id=current_user.id,
     )
 
     db.add(new_post)
