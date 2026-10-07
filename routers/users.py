@@ -269,8 +269,6 @@ async def update_user(
     if user_update.email is not None:
         user.email = user_update.email.lower()
 
-    if user_update.image_file is not None:
-        user.image_file = user_update.image_file
 
     await db.commit()
     await db.refresh(user)
@@ -308,10 +306,17 @@ async def delete_user(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found",
         )
+        
+        
+    old_filename=user.image_file
 
     await db.delete(user)
 
     await db.commit()
+    
+    if old_filename:
+        delete_profile_image(old_filename)
+        
 
 
 ## Upload Profile Picture Endpoint

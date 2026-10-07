@@ -43,7 +43,7 @@ class UserPrivate(UserPublic):
 class UserUpdate(BaseModel):
    username:str |None =Field( default=None,min_length=1,max_length=50)
    email:EmailStr | None =Field( default=None,max_length=120)
-   image_file:str | None =Field(default=None,min_length=1,max_length=200)
+   
 
 
 class Token(BaseModel):
@@ -55,9 +55,6 @@ class Token(BaseModel):
 
 
 
-# --- BASE SCHEMA ---
-# PostBase holds the fields that are SHARED by both the request and response schemas.
-# Putting shared fields here avoids copy-pasting — other schemas will inherit from it.
 class PostBase(BaseModel):
   
    title: str =Field(min_length=1,max_length=100)
