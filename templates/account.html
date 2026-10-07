@@ -1,0 +1,158 @@
+{% extends "layout.html" %}
+{% block content %}
+  <div class="content-section py-3 px-4 mb-4">
+    <!-- Profile Header -->
+    <div class="d-flex align-items-center gap-4 mb-4">
+      <img id="profileImage"
+           class="rounded-circle account-img flex-shrink-0"
+           src="{{ url_for('static', path='profile_pics/default.jpg') }}"
+           alt="Profile picture"
+           width="125"
+           height="125">
+      <h2 class="account-heading mb-0" id="accountUsername"></h2>
+    </div>
+    <!-- Profile Picture Section -->
+    <div class="mb-4">
+      <h5>Profile Picture</h5>
+      <!-- Preview container -->
+      <div class="mb-3">
+        <img id="imagePreview"
+             class="rounded-circle d-none object-fit-cover"
+             alt="Image preview"
+             width="150"
+             height="150">
+      </div>
+      <!-- File input and upload button -->
+      <div class="d-flex gap-2 align-items-start">
+        <input type="file"
+               class="form-control file-input-sm"
+               id="pictureInput"
+               accept="image/*">
+        <button type="button" class="btn btn-primary" id="uploadPictureBtn" disabled>Upload</button>
+      </div>
+      <small class="text-body-secondary">Maximum file size: 5MB. Supported formats: JPEG, PNG, GIF, WebP.</small>
+    </div>
+    <!-- Logout -->
+    <div class="border-top pt-3">
+      <button type="button" class="btn btn-outline-secondary" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+{% endblock content %}
+{% block scripts %}
+  <script type="module">
+  import { clearUserCache, getCurrentUser, getToken, logout } from '/static/js/auth.js';
+  import { getErrorMessage, showModal } from '/static/js/utils.js';
+
+  let currentUserId = null;
+
+  // Load the logged-in user's details, or send them to the login page
+  async function loadAccount() {
+    const user = await getCurrentUser();
+    if (!user) {
+      window.location.href = '/login';
+      return;
+    }
+
+    currentUserId = user.id;
+    document.getElementById('profileImage').src = user.image_path;
+    document.getElementById('accountUsername').textContent = user.username;
+  }
+
+  // Logout Handler
+  document.getElementById('logoutBtn').addEventListener('click', logout);
+
+  // Image Preview Handler
+  const pictureInput = document.getElementById('pictureInput');
+  const imagePreview = document.getElementById('imagePreview');
+  const uploadBtn = document.getElementById('uploadPictureBtn');
+
+  pictureInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        imagePreview.src = e.target.result;
+        imagePreview.classList.remove('d-none');
+      };
+      reader.readAsDataURL(file);
+
+      uploadBtn.disabled = false;
+    } else {
+      imagePreview.classList.add('d-none');
+      uploadBtn.disabled = true;
+    }
+  });
+
+  // Upload Profile Picture Handler
+  uploadBtn.addEventListener('click', async () => {
+    const token = getToken();
+    if (!token) {
+      window.location.href = '/login';
+      return;
+    }
+
+    const file = pictureInput.files[0];
+    if (!file || currentUserId === null) {
+      return;
+    }
+
+    // Use FormData for file uploads (not JSON)
+    const formData = new FormData();
+    formData.append('file', file);
+
+    uploadBtn.disabled = true;
+    uploadBtn.textContent = 'Uploading...';
+
+    try {
+      const response = await fetch(`/api/users/${currentUserId}/picture`, {
+        method: 'PATCH',
+        headers: {
+          // Don't set Content-Type — browser sets multipart boundary automatically
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.status === 401) {
+        window.location.href = '/login';
+        return;
+      }
+
+      if (response.status === 403) {
+        document.getElementById('errorMessage').textContent =
+          'You are not authorized to update this profile picture.';
+        showModal('errorModal');
+        return;
+      }
+
+      if (response.ok) {
+        const data = await response.json();
+
+        clearUserCache();
+
+        document.getElementById('profileImage').src = data.image_path;
+
+        pictureInput.value = '';
+        imagePreview.classList.add('d-none');
+
+        document.getElementById('successMessage').textContent =
+          'Profile picture updated successfully!';
+        showModal('successModal');
+      } else {
+        const error = await response.json();
+        document.getElementById('errorMessage').textContent = getErrorMessage(error);
+        showModal('errorModal');
+      }
+    } catch (error) {
+      document.getElementById('errorMessage').textContent =
+        'Network error. Please check your connection and try again.';
+      showModal('errorModal');
+    } finally {
+      uploadBtn.disabled = pictureInput.files.length === 0;
+      uploadBtn.textContent = 'Upload';
+    }
+  });
+
+  loadAccount();
+  </script>
+{% endblock scripts %}
